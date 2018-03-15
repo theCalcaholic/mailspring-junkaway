@@ -1,0 +1,21 @@
+{
+  "name": "junkaway",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "mailspring": ">=1.1.5"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "description": "Enter a description of your package!",
+  "dependencies": {
+    "node-spamd": "0.0.4"
+  },
+  "license": "MIT"
+}
