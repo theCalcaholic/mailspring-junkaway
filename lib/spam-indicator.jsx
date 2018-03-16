@@ -7,6 +7,8 @@ import {
   MessageBodyProcessor
 } from 'mailspring-exports';
 import Spamd from './spamd';
+import SpamInfoStore from './spam-info-store';
+import {log_error} from "./util";
 
 export default class SpamIndicator extends React.Component {
   static displayName = 'SpamIndicator';
@@ -27,26 +29,12 @@ export default class SpamIndicator extends React.Component {
   setupSpamd() {
     //console.log(this.props);
     if(this.props.thread && this.props.thread.__messages.length > 0) {
-      let spamd = new Spamd('localhost', 783);
       this.props.thread.__messages.forEach((msg) => {
         //console.log(msg ? msg : "message was undefined");
-        if (msg.from.length > 0 && !msg.from[0].isMe()) {
-          console.log("evaluate message from " + msg.from[0].email);
-          let to = msg.to.length > 0 ? msg.to[0].email : '';
-          let evaluateMsg = (message) => {
-            console.log(message);
-            spamd.evaluate(message.from[0].email, to, message.subject, message.body, this._spamdCallback.bind(this));
-          };
-          if(msg.hasEmptyBody()) {
-            DatabaseStore.find(Message, msg.id).include(Message.attributes.body)
-                .then(evaluateMsg);
-          } else {
-            evaluateMsg(msg);
-          }
 
-        } else if (msg.from.length === 0) {
-          console.log("message has no sender");
-        }
+        SpamInfoStore.getSpamInfo(msg)
+            .then(spamInfo => this._addSpamInfo(spamInfo))
+            .catch(err => { console.log(err) });
       });
     }
   }
@@ -65,20 +53,13 @@ export default class SpamIndicator extends React.Component {
   _onChange = () => {
   };
 
-  _spamdCallback = (res, err) => {
-    if (err) {
-      console.log("An error occured!")
-      console.log(err);
-    } else {
-      console.log("response:");
-      console.log(res);
+  _addSpamInfo = (spamInfo) => {
       this.setState({
-        isJunk: this.state.isJunk || res.spam,
+        isJunk: this.state.isJunk || spamInfo.isJunk,
         rating: this.state.rating !== undefined
-            ? Math.max(0, this.state.rating, Number(res.evaluation)) : res.evaluation
+            ? Math.max(0, this.state.rating, Number(spamInfo.rating)) : spamInfo.rating
       });
-      console.log(Number(Math.max(this.state.rating, res.evaluation)));
-    }
+      return Promise.resolve();
   };
 
   render() {
@@ -86,14 +67,21 @@ export default class SpamIndicator extends React.Component {
     //const content = this.state.contact || this.state.thread ? this._renderContent() : this._renderPlaceholder();
     //console.log(this.state)
     return (
-        <div style={{color:
-          this.state && typeof this.state.rating !== 'undefined' ?
-                  "#"
-                  + ("00" + (this.state.rating * 255 / 3).toString(16)).slice(-2)
-                  + ("00" + (255 - (this.state.rating * 255 / 3)).toString(16)).slice(-2)
-                  + "00"
-                : "#444" }}>
-          {this.state && this.state.isJunk ? "[SPAM]" : "[NO SPAM]"}
+        <div style={{
+          color:
+              this.state && typeof this.state.rating !== 'undefined' ?
+                  "hsl(" + (120 - Math.min(this.state.rating * 120 / 5, 120)).toString() + ", 100%, 50%)"
+                : "#AAA",
+          backgroundColor: "#101010",
+          borderRadius: "5%",
+          padding: "2px",
+          fontSize: "0.7em",
+          minWidth: "6em",
+          textAlign: "center",
+          minHeight: "2em",
+          lineHeight: "2em"
+        }}>
+          {this.state && this.state.rating !== undefined ? this.state.rating > 3 ? "[SPAM]" : "[NO SPAM]" : "..."}
         </div>
     );
   }
@@ -104,7 +92,7 @@ export default class SpamIndicator extends React.Component {
 // the column your component is being rendered in. The min and
 // max size of the column are chosen automatically based on
 // these values.
-SpamIndicator.containerStyles = {
+//SpamIndicator.containerStyles = {
 //  order: 1,
 //  flexShrink: 0,
-};
+//};

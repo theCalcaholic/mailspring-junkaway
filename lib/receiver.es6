@@ -1,21 +1,22 @@
 export default class Receiver {
 
-  constructor(fn) {
-    this._fn = fn;
+  constructor(resolve, reject) {
+    this.resolve = resolve;
+    this.reject = reject;
     this._result = {};
   }
 
   end() {
-    this._fn(this._result);
+    this.resolve(this._result);
   }
 
   error(err) {
-    this._fn(this._result, {err});
+    this.reject(err, this._result);
     this.end();
   }
 
   timeout() {
-    this._fn(this._result, {code: 'ECONNTIMEOUT'});
+    this.reject(Error('ECONNTIMEOUT'), this._result);
     this.end();
   }
 

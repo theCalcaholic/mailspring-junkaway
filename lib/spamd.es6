@@ -18,7 +18,7 @@ export default class Spamd {
     }
   }
 
-  evaluate(sender, receiver, subject, body, fn) {
+  evaluate(sender, receiver, subject, body) {
     sender = typeof sender === 'undefined' ? 'root' : sender;
     receiver = typeof receiver === 'undefined' ? 'root' : receiver;
 
@@ -36,30 +36,28 @@ export default class Spamd {
     headers += 'Content-Transfer-Encoding: quoted-printable\r\n';
     headers += '\r\n' + body;
 
-    console.log(headers);
+    //console.log(headers);
 
-    if(typeof fn !== 'undefined'){
+    let connection = net.connect(this._port, this._host, () => {
 
-      let connection = net.connect(this._port, this._host, () => {
-
-        connection.write("SYMBOLS SPAMC/1.3\r\n", undefined, () => {
-          connection.write("User: " + receiver + "\r\n\r\n", undefined, () => {
-            connection.write("X-Envelope-From: " + sender + "\r\n", undefined, () => {
-              connection.write(headers);
-              connection.end('\r\n');
-            });
+      connection.write("SYMBOLS SPAMC/1.3\r\n", undefined, () => {
+        connection.write("User: " + receiver + "\r\n\r\n", undefined, () => {
+          connection.write("X-Envelope-From: " + sender + "\r\n", undefined, () => {
+            connection.write(headers);
+            connection.end('\r\n');
           });
         });
-
       });
 
-      let recv = new Receiver(fn);
+    });
+
+    return new Promise((resolve, reject) => {
+      let recv = new Receiver(resolve, reject);
       connection.on('end', recv.end.bind(recv));
       connection.on('error', recv.error.bind(recv));
       connection.on('timeout', recv.timeout.bind(recv));
       connection.on('data', recv.data.bind(recv));
-    }else{
-      throw this.NO_CALLBACK;
-    }
+    });
+
   }
 }
