@@ -25,9 +25,9 @@ export default class SpamIndicator extends React.Component {
     //this.state = this._getStateFromStores();
   }
 
-  setupSpamd() {
+  requestSpamInfo() {
     //console.log(this.props);
-    if(this.props.thread && this.props.thread.__messages.length > 0) {
+    if(this.props.thread && this.props.thread.__messages && this.props.thread.__messages.length > 0) {
       this.props.thread.__messages.forEach((msg) => {
         //console.log(msg ? msg : "message was undefined");
 
@@ -39,7 +39,7 @@ export default class SpamIndicator extends React.Component {
   }
 
   componentDidMount() {
-    this.setupSpamd();
+    this.requestSpamInfo();
     this.setState({
       isJunk: false,
       rating: undefined
