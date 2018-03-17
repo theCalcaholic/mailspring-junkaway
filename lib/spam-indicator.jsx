@@ -8,7 +8,6 @@ import {
 } from 'mailspring-exports';
 import Spamd from './spamd';
 import SpamInfoStore from './spam-info-store';
-import {log_error} from "./util";
 
 export default class SpamIndicator extends React.Component {
   static displayName = 'SpamIndicator';

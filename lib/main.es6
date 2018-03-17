@@ -1,7 +1,6 @@
 import { ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
 
 import MyComposerButton from './my-composer-button';
-import MyMessageSidebar from './my-message-sidebar';
 import SpamIndicator from './spam-indicator';
 
 // Activate is called when the package is loaded. If your package previously
@@ -10,9 +9,6 @@ import SpamIndicator from './spam-indicator';
 export function activate() {
   ComponentRegistry.register(MyComposerButton, {
     role: 'Composer:ActionButton',
-  });
-  ComponentRegistry.register(MyMessageSidebar, {
-    role: 'MessageListSidebar:ContactCard'
   });
   ComponentRegistry.register(SpamIndicator, {
     role: 'Thread:MailLabel'

@@ -1,7 +1,10 @@
 {
   "name": "junkaway",
   "main": "./lib/main",
-  "version": "0.1.0",
+  "version": "0.3.0",
+  "scripts": {
+    "postinstall": "install-app-deps"
+  },
   "repository": {
     "type": "git",
     "url": ""
@@ -15,7 +18,10 @@
   },
   "description": "Enter a description of your package!",
   "dependencies": {
-    "node-spamd": "0.0.4"
+    "sqlite3": ">=4.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "electron-builder": "^20.5.1"
+  }
 }
