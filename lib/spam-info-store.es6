@@ -133,7 +133,7 @@ class SpamInfoStore extends MailspringStore {
         } else {
           resolve();
         }
-        if(Object.keys(this.messages).length > 500)
+        if(Object.keys(this.messages).length > 900)
           this.messages.slice(499);
         this.dbReady = true;
         this._processQueued();
